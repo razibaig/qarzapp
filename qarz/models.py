@@ -17,12 +17,18 @@ class QarzUser(models.Model):
     mobile = models.BigIntegerField()
     type = models.CharField(choices=USER_TYPE_CHOICES, max_length=20)
 
+    def __str__(self):
+        return self.name
+
 
 class Transaction(models.Model):
     amount = models.IntegerField()
     donation_or_loan = models.BooleanField(default=True)
     transaction_date = models.DateTimeField(auto_now_add=True, blank=True)
     qarz_user = models.ForeignKey(QarzUser, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return self.qarz_user.name
 
 
 class Report(models.Model):
@@ -32,10 +38,13 @@ class Report(models.Model):
     total_loan = models.IntegerField(blank=True, null=True)
     remaining_loan = models.IntegerField(blank=True, null=True)
 
+    def __str__(self):
+        return self.report_user.name
+
     def save(self, *args, **kwargs):
         if self.report_user.type == DONOR:
             user_transactions = Transaction.objects.filter(qarz_user=self.report_user).filter(donation_or_loan=True)
-            donations = user_transactions.filter(transaction_date__gte=self.report_date)
+            donations = user_transactions.filter(transaction_date__lte=self.report_date)
             total_donations = 0
             for donation in donations:
                 total_donations += donation.amount

@@ -45,9 +45,9 @@ class Transaction(models.Model):
 class Report(models.Model):
     report_user = models.ForeignKey(QarzUser, on_delete=models.CASCADE)
     report_date = models.DateTimeField(null=True, blank=True)
-    total_donated = models.IntegerField(blank=True, null=True)
-    total_loan = models.IntegerField(blank=True, null=True)
-    remaining_loan = models.IntegerField(blank=True, null=True)
+    total_donated = models.IntegerField(blank=True, null=True, default=0)
+    total_loan = models.IntegerField(blank=True, null=True, default=0)
+    remaining_loan = models.IntegerField(blank=True, null=True, default=0)
 
     def __str__(self):
         return self.report_user.name
@@ -77,4 +77,27 @@ class Report(models.Model):
             for payment in filtered_returns:
                 total_returns += payment.amount
             self.remaining_loan = self.total_loan - total_returns
+        super().save(*args, **kwargs)
+
+
+class OverallReport(models.Model):
+    report_date = models.DateTimeField(null=True, blank=True)
+    total_donations = models.IntegerField(blank=True, null=True, default=0)
+    total_loans = models.IntegerField(blank=True, null=True, default=0)
+    current_balance = models.IntegerField(blank=True, null=True, default=0)
+    outstanding_loans = models.IntegerField(blank=True, null=True, default=0)
+
+    def save(self, *args, **kwargs):
+        donations = Transaction.objects.filter(type=DONATION).filter(transaction_date__lte=self.report_date)
+        returns = Transaction.objects.filter(type=RETURN).filter(transaction_date__lte=self.report_date)
+        loans = Transaction.objects.filter(type=LOAN).filter(transaction_date__lte=self.report_date)
+        td = sum([donation.amount for donation in donations])
+        tr = sum([ret.amount for ret in returns])
+        tl = sum([loan.amount for loan in loans])
+        tb = td + tr - tl
+        ol = tl - tr
+        self.total_donations = td
+        self.total_loans = tl
+        self.current_balance = tb
+        self.outstanding_loans = ol
         super().save(*args, **kwargs)

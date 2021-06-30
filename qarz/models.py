@@ -2,6 +2,9 @@ from django.db import models
 from django.db.models import Q
 DONOR = 'DONOR'
 LOANER = 'LOANER'
+DONATION = 'DONATION'
+LOAN = 'LOAN'
+RETURN = 'RETURN'
 
 
 class QarzUser(models.Model):
@@ -22,8 +25,16 @@ class QarzUser(models.Model):
 
 
 class Transaction(models.Model):
+
+    TRANSACTION_TYPE_CHOICES = (
+        ('', 'Transaction type'),
+        (str(DONATION), DONATION),
+        (str(LOAN), LOAN),
+        (str(RETURN), RETURN)
+    )
+
     amount = models.IntegerField()
-    donation_or_loan = models.BooleanField(default=True)
+    type = models.CharField(choices=TRANSACTION_TYPE_CHOICES, max_length=20, default=DONATION)
     transaction_date = models.DateTimeField(auto_now_add=True, blank=True)
     qarz_user = models.ForeignKey(QarzUser, on_delete=models.CASCADE)
 
@@ -43,7 +54,7 @@ class Report(models.Model):
 
     def save(self, *args, **kwargs):
         if self.report_user.type == DONOR:
-            user_transactions = Transaction.objects.filter(qarz_user=self.report_user).filter(donation_or_loan=True)
+            user_transactions = Transaction.objects.filter(qarz_user=self.report_user).filter(type=DONATION)
             filtered_donations = user_transactions.filter(transaction_date__lte=self.report_date)
             total_donations = 0
             for donation in filtered_donations:
@@ -52,7 +63,7 @@ class Report(models.Model):
             self.total_donated = total_donations
 
         elif self.report_user.type == LOANER:
-            user_loans = Transaction.objects.filter(qarz_user=self.report_user).filter(donation_or_loan=False)
+            user_loans = Transaction.objects.filter(qarz_user=self.report_user).filter(type=LOAN)
             loans = user_loans.filter(transaction_date__lte=self.report_date)
             total_loans = 0
             for loan in loans:
@@ -60,7 +71,7 @@ class Report(models.Model):
             # set the total_loan field
             self.total_loan = total_loans
 
-            user_returns = Transaction.objects.filter(qarz_user=self.report_user).filter(donation_or_loan=True)
+            user_returns = Transaction.objects.filter(qarz_user=self.report_user).filter(type=RETURN)
             filtered_returns = user_returns.filter(transaction_date__lte=self.report_date)
             total_returns = 0
             for payment in filtered_returns:

@@ -7,7 +7,7 @@ class UserAdmin(admin.ModelAdmin):
 
 
 class TransactionAdmin(admin.ModelAdmin):
-    list_display = ('qarz_user', 'transaction_date', 'amount', 'donation_or_loan')
+    list_display = ('qarz_user', 'transaction_date', 'amount', 'type')
 
 
 class ReportAdmin(admin.ModelAdmin):

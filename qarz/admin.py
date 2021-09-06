@@ -3,8 +3,9 @@ from .models import QarzUser, Transaction, Report, OverallReport
 
 
 class UserAdmin(admin.ModelAdmin):
-    list_display = ('cnic', 'name', 'mobile', 'type')
-    search_fields = ['cnic', 'name', 'mobile', 'type']
+    list_display = ('id', 'cnic', 'name', 'mobile', 'type', 'unique_id')
+    search_fields = ['cnic', 'name', 'mobile', 'type', 'unique_id']
+    readonly_fields = ('id', 'unique_id')
 
 
 class TransactionAdmin(admin.ModelAdmin):

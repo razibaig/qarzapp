@@ -1,5 +1,8 @@
 from django.db import models
 from django.db.models import Q
+from autoslug import AutoSlugField
+from django.template.defaultfilters import slugify
+
 DONOR = 'DONOR'
 LOANER = 'LOANER'
 DONATION = 'DONATION'
@@ -19,9 +22,17 @@ class QarzUser(models.Model):
     name = models.CharField(max_length=100)
     mobile = models.BigIntegerField()
     type = models.CharField(choices=USER_TYPE_CHOICES, max_length=20)
+    unique_id = AutoSlugField(null=True, blank=True, default=None)
 
     def __str__(self):
         return self.name
+
+    def save(self, *args, **kwargs):
+        super(QarzUser, self).save()
+        if not self.unique_id:  # if this is a new user
+            unique_slug = '{0}{1}'.format(str(self.type)[0], str(self.pk))
+            self.unique_id = slugify(unique_slug)
+            self.save()
 
 
 class Transaction(models.Model):

@@ -1,0 +1,79 @@
+{% extends "admin/base_site.html" %}
+{% block content %}
+    <h1>System Funds Report</h1>
+
+<html>
+
+<head>
+<style>
+table {
+  font-family: arial, sans-serif;
+  border-collapse: collapse;
+  width: 100%;
+  margin-bottom: 5em;
+  margin-top: 1em;
+}
+
+td, th {
+  border: 1px solid #dddddd;
+  text-align: left;
+  padding: 8px;
+}
+
+tr:nth-child(even) {
+  background-color: #dddddd;
+}
+</style>
+</head>
+
+<h2>Users Report</h2>
+
+<table>
+  <tr>
+    <th>Name</th>
+    <th>Type</th>
+    <th>Total Donated</th>
+    <th>Total Loan</th>
+    <th>Remaining Loan</th>
+  </tr>
+    {% for user in users %}
+    <tr>
+      <td>{{ user.name }}</td>
+      <td>{{ user.type }}</td>
+      <td>{{ user.t_d }}</td>
+      <td>{{ user.t_l }}</td>
+      <td>{{ user.r_l }}</td>
+      </tr>
+    {% endfor %}
+
+</table>
+
+
+<h2>Funds Report</h2>
+
+<table>
+  <tr>
+    <th>Total Donations</th>
+    <th>Total Loans</th>
+    <th>Outstanding Loans</th>
+    <th>Current Balance</th>
+  </tr>
+    <tr>
+      <td>{{ system_data.t_d }}</td>
+      <td>{{ system_data.t_l }}</td>
+      <td>{{ system_data.o_l }}</td>
+      <td>{{ system_data.c_b }}</td>
+      </tr>
+
+</table>
+
+<p>
+  &nbsp;&nbsp;
+&nbsp;&nbsp;
+  &nbsp;&nbsp;
+</p>
+
+</html>
+
+
+{% endblock %}

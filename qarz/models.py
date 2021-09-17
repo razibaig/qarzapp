@@ -64,30 +64,29 @@ class Report(models.Model):
         return self.report_user.name
 
     def save(self, *args, **kwargs):
-        if self.report_user.type == DONOR:
-            user_transactions = Transaction.objects.filter(qarz_user=self.report_user).filter(type=DONATION)
-            filtered_donations = user_transactions.filter(transaction_date__lte=self.report_date)
-            total_donations = 0
-            for donation in filtered_donations:
-                total_donations += donation.amount
-            # set the total_donated field
-            self.total_donated = total_donations
+        user_transactions = Transaction.objects.filter(qarz_user=self.report_user).filter(type=DONATION)
+        filtered_donations = user_transactions.filter(transaction_date__lte=self.report_date)
+        total_donations = 0
+        for donation in filtered_donations:
+            total_donations += donation.amount
+        # set the total_donated field
+        self.total_donated = total_donations
 
-        elif self.report_user.type == LOANER:
-            user_loans = Transaction.objects.filter(qarz_user=self.report_user).filter(type=LOAN)
-            loans = user_loans.filter(transaction_date__lte=self.report_date)
-            total_loans = 0
-            for loan in loans:
-                total_loans += loan.amount
-            # set the total_loan field
-            self.total_loan = total_loans
+        user_loans = Transaction.objects.filter(qarz_user=self.report_user).filter(type=LOAN)
+        loans = user_loans.filter(transaction_date__lte=self.report_date)
+        total_loans = 0
+        for loan in loans:
+            total_loans += loan.amount
+        # set the total_loan field
+        self.total_loan = total_loans
 
-            user_returns = Transaction.objects.filter(qarz_user=self.report_user).filter(type=RETURN)
-            filtered_returns = user_returns.filter(transaction_date__lte=self.report_date)
-            total_returns = 0
-            for payment in filtered_returns:
-                total_returns += payment.amount
-            self.remaining_loan = self.total_loan - total_returns
+        user_returns = Transaction.objects.filter(qarz_user=self.report_user).filter(type=RETURN)
+        filtered_returns = user_returns.filter(transaction_date__lte=self.report_date)
+        total_returns = 0
+        for payment in filtered_returns:
+            total_returns += payment.amount
+        self.remaining_loan = self.total_loan - total_returns
+
         super().save(*args, **kwargs)
 
 

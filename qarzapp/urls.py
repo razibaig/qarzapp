@@ -17,9 +17,12 @@ import sys
 from django.contrib import admin
 from django.urls import path
 from qarz.views import index
+from qarz.views import SystemReport
+from django.views.generic.base import TemplateView
 
 
 urlpatterns = [
+    path("admin/system_report/", SystemReport.as_view(), name="system_report"),
     path('admin/', admin.site.urls),
     path("", index, name="index")
 ]
